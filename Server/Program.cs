@@ -19,7 +19,18 @@ namespace Server
         public static int Port;
         static void Main(string[] args)
         {
-         
+            Users.Add(new User("Alonov", "Asdfg123", @"A:\Авиатехникум"));
+
+            Console.Write("Введите IP адрес сервер: ");
+            string sIpAdress = Console.ReadLine();
+            Console.Write("Введите порт: ");
+            string sPort = Console.ReadLine();
+            if(int.TryParse(sPort,out Port)&& IPAddress.TryParse(sIpAdress,out IpAdress))
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Данные успешно введены. Запускаю сервер");
+                StartServer();
+            }
         }
 
         public static bool AutorizationUser(string login, string password)
