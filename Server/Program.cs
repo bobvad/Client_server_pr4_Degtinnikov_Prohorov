@@ -32,7 +32,12 @@ namespace Server
                 StartServer();
             }
         }
-
+        /// <summary>
+        /// //
+        /// </summary>
+        /// <param name="login"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public static bool AutorizationUser(string login, string password)
         {
             User user = null;
