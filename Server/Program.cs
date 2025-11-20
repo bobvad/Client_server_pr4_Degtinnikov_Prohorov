@@ -19,7 +19,7 @@ namespace Server
         public static int Port;
         static void Main(string[] args)
         {
-            Users.Add(new User("Alonov", "Asdfg123", @"A:\Авиатехникум"));
+            Users.Add(new User("Alonov", "Asdfg123", @"C:\Users\student-a502.PERMAVIAT\Desktop\123\"));
 
             Console.Write("Введите IP адрес сервер: ");
             string sIpAdress = Console.ReadLine();
