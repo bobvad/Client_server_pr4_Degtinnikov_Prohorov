@@ -1,34 +1,41 @@
-﻿<Page x:Class="CMD2._0.AuthRegIN.Authorization"
+﻿<Page x:Class="CMD2._0.Authtorization.Registration"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:CMD2._0.AuthRegIN"
+      xmlns:local="clr-namespace:CMD2._0.Authtorization"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="Authorization">
+      Title="Registration">
 
     <Grid Background="White">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="300">
-            <TextBlock Text="Вход в систему" 
+            <TextBlock Text="Регистрация" 
                       FontSize="20" 
                       FontWeight="Bold" 
                       HorizontalAlignment="Center" 
                       Margin="0,0,0,30"/>
 
             <TextBlock Text="Логин:" Margin="0,0,0,5"/>
-            <TextBox x:Name="txtLogin" Height="25" Margin="0,0,0,15"/>
+            <TextBox x:Name="txtLogin" Height="25" Margin="0,0,0,15" KeyDown="TxtLogin_KeyDown"/>
 
             <TextBlock Text="Пароль:" Margin="0,0,0,5"/>
-            <PasswordBox x:Name="txtPassword" Height="25" Margin="0,0,0,20"/>
+            <PasswordBox x:Name="txtPassword" Height="25" Margin="0,0,0,15" KeyDown="TxtPassword_KeyDown"/>
 
-
-            <Button x:Name="btnLogin" 
-                   Content="Войти" 
+            <Button x:Name="btnRegister" 
+                   Content="Зарегистрироваться" 
                    Height="30" 
-                   Background="LightBlue" 
-                   Click="BtnLogin_Click"/>
+                   Background="LightGreen" 
+                   Click="BtnRegister_Click"/>
 
+            <Button x:Name="btnBack" 
+                   Content="Назад к авторизации" 
+                   Height="25" 
+                   Background="Transparent" 
+                   BorderThickness="0"
+                   Foreground="Blue"
+                   Margin="0,10,0,0"
+                   Click="BtnBack_Click"/>
 
             <TextBlock x:Name="txtMessage" 
                       Foreground="Red" 

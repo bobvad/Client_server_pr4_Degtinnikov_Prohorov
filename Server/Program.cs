@@ -25,39 +25,56 @@ namespace Server
             string sIpAdress = Console.ReadLine();
             Console.Write("Введите порт: ");
             string sPort = Console.ReadLine();
-            if(int.TryParse(sPort,out Port)&& IPAddress.TryParse(sIpAdress,out IpAdress))
+            if (int.TryParse(sPort, out Port) && IPAddress.TryParse(sIpAdress, out IpAdress))
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Данные успешно введены. Запускаю сервер");
                 StartServer();
             }
         }
-        /// <summary>
-        /// //
-        /// </summary>
-        /// <param name="login"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
+
         public static bool AutorizationUser(string login, string password)
         {
             User user = null;
-            user = Users.Find(x=> x.login == login && x.password == password);
+            user = Users.Find(x => x.login == login && x.password == password);
             return user != null;
         }
+
+        public static bool RegistrationUser(string login, string password)
+        {
+            try
+            {
+                if (Users.Any(u => u.login == login))
+                {
+                    return false;
+                }
+                string userPath = @"C:\FTP\" + login + @"\";
+                if (!Directory.Exists(userPath))
+                {
+                    Directory.CreateDirectory(userPath);
+                }
+                Users.Add(new User(login, password, userPath));
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public static List<string> GetDirectory(string src)
         {
             List<string> FoldersFiles = new List<string>();
-            if(Directory.Exists(src))
+            if (Directory.Exists(src))
             {
                 string[] dirs = Directory.GetDirectories(src);
-                foreach(string dir in dirs)
+                foreach (string dir in dirs)
                 {
                     string NameDirectory = dir.Replace(src, "");
                     FoldersFiles.Add(NameDirectory + "/");
                 }
-
                 string[] files = Directory.GetFiles(src);
-                foreach(string file in files)
+                foreach (string file in files)
                 {
                     string NameFile = file.Replace(src, "");
                     FoldersFiles.Add(NameFile);
@@ -65,7 +82,6 @@ namespace Server
             }
             return FoldersFiles;
         }
-
 
         public static void StartServer()
         {
@@ -76,7 +92,7 @@ namespace Server
             sListener.Listen(10);
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Сервер запущен.");
-            while(true)
+            while (true)
             {
                 try
                 {
@@ -88,10 +104,11 @@ namespace Server
                     Console.WriteLine("Сообщение от пользователя: " + Data + "\n");
                     string Reply = "";
                     ViewModelSend ViewModelSend = JsonConvert.DeserializeObject<ViewModelSend>(Data);
-                    if(ViewModelSend != null)
+                    if (ViewModelSend != null)
                     {
                         ViewModelMessage viewModelMessage;
                         string[] DataCommand = ViewModelSend.Message.Split(new string[1] { " " }, StringSplitOptions.None);
+
                         if (DataCommand[0] == "connect")
                         {
                             string[] DataMessage = ViewModelSend.Message.Split(new string[1] { " " }, StringSplitOptions.None);
@@ -103,6 +120,34 @@ namespace Server
                             else
                             {
                                 viewModelMessage = new ViewModelMessage("message", "Не правильный логин или пароль");
+                            }
+                            Reply = JsonConvert.SerializeObject(viewModelMessage);
+                            byte[] message = Encoding.UTF8.GetBytes(Reply);
+                            Handler.Send(message);
+                        }
+                        else if (DataCommand[0] == "register")
+                        {
+                            string[] DataMessage = ViewModelSend.Message.Split(new string[1] { " " }, StringSplitOptions.None);
+                            if (DataMessage.Length >= 3)
+                            {
+                                string login = DataMessage[1];
+                                string password = DataMessage[2];
+
+                                if (RegistrationUser(login, password))
+                                {
+                                    viewModelMessage = new ViewModelMessage("message", "Регистрация успешна");
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Console.WriteLine($"Зарегистрирован новый пользователь: {login}");
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                }
+                                else
+                                {
+                                    viewModelMessage = new ViewModelMessage("message", "Пользователь с таким логином уже существует");
+                                }
+                            }
+                            else
+                            {
+                                viewModelMessage = new ViewModelMessage("message", "Неверный формат команды регистрации");
                             }
                             Reply = JsonConvert.SerializeObject(viewModelMessage);
                             byte[] message = Encoding.UTF8.GetBytes(Reply);
@@ -142,7 +187,7 @@ namespace Server
                             Reply = JsonConvert.SerializeObject(viewModelMessage);
                             byte[] message = Encoding.UTF8.GetBytes(Reply);
                             Handler.Send(message);
-                        
+
                         }
                         else if (DataCommand[0] == "get")
                         {
@@ -180,13 +225,12 @@ namespace Server
                             byte[] message = Encoding.UTF8.GetBytes(Reply);
                             Handler.Send(message);
                         }
-
                     }
-                  
-                } catch (Exception exp)
+                }
+                catch (Exception exp)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Что-то случилось" + exp.Message);
+                    Console.WriteLine("Ошибка: " + exp.Message);
                 }
             }
         }

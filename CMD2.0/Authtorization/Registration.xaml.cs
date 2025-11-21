@@ -13,16 +13,26 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace CMD2._0.AuthRegIN
+namespace CMD2._0.Authtorization
 {
     /// <summary>
-    /// Логика взаимодействия для Authorization.xaml
+    /// Логика взаимодействия для Registration.xaml
     /// </summary>
-    public partial class Authorization : Page
+    public partial class Registration : Page
     {
-        public Authorization()
+        public Registration()
         {
             InitializeComponent();
+        }
+
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnRegister_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

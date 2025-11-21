@@ -12,12 +12,18 @@ namespace Server
         public string password { get; set; }
         public string src { get; set; }
         public string temp_src { get; set; }
+        public virtual ICollection<CommandUser> CommandUsers { get; set; }
+        public User()
+        {
+            CommandUsers = new List<CommandUser>();
+        }
         public User(string login,string password,string src) 
         {
             this.login = login;
             this.password = password;
             this.src = src;
             temp_src = src;
+            CommandUsers = new List<CommandUser>();
         }
     }
 }
