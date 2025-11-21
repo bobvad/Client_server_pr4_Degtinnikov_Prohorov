@@ -33,7 +33,7 @@ namespace Server
             }
         }
         /// <summary>
-        /// //
+        /// //.......
         /// </summary>
         /// <param name="login"></param>
         /// <param name="password"></param>
