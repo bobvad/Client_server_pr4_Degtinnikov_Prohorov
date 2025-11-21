@@ -33,7 +33,7 @@ namespace Server
             }
         }
         /// <summary>
-        /// //.......
+        /// //
         /// </summary>
         /// <param name="login"></param>
         /// <param name="password"></param>
@@ -44,7 +44,6 @@ namespace Server
             user = Users.Find(x=> x.login == login && x.password == password);
             return user != null;
         }
-
         public static List<string> GetDirectory(string src)
         {
             List<string> FoldersFiles = new List<string>();

@@ -1,0 +1,40 @@
+﻿<Page x:Class="CMD2._0.AuthRegIN.Authorization"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:CMD2._0.AuthRegIN"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Authorization">
+
+    <Grid Background="White">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="300">
+            <TextBlock Text="Вход в систему" 
+                      FontSize="20" 
+                      FontWeight="Bold" 
+                      HorizontalAlignment="Center" 
+                      Margin="0,0,0,30"/>
+
+            <TextBlock Text="Логин:" Margin="0,0,0,5"/>
+            <TextBox x:Name="txtLogin" Height="25" Margin="0,0,0,15"/>
+
+            <TextBlock Text="Пароль:" Margin="0,0,0,5"/>
+            <PasswordBox x:Name="txtPassword" Height="25" Margin="0,0,0,20"/>
+
+
+            <Button x:Name="btnLogin" 
+                   Content="Войти" 
+                   Height="30" 
+                   Background="LightBlue" 
+                   Click="BtnLogin_Click"/>
+
+
+            <TextBlock x:Name="txtMessage" 
+                      Foreground="Red" 
+                      TextWrapping="Wrap"
+                      Margin="0,10,0,0"
+                      Visibility="Collapsed"/>
+        </StackPanel>
+    </Grid>
+</Page>
