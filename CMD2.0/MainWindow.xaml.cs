@@ -17,7 +17,7 @@ namespace CMD2._0
     public partial class MainWindow : Window
     {
         /// <summary>
-        /// 
+        /// /////
         /// </summary>
         public MainWindow()
         {
