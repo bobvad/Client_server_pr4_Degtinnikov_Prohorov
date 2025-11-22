@@ -22,6 +22,7 @@ namespace CMD2._0
         public MainWindow()
         {
             InitializeComponent();
+            frame.Navigate(new Authtorization.Authtorization());
         }
 
         private void BtnBack_Click(object sender, RoutedEventArgs e)

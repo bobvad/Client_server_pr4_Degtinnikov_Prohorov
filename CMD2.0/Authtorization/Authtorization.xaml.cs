@@ -1,25 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CMD2._0.Authtorization
 {
-    /// <summary>
-    /// Логика взаимодействия для Authtorization.xaml
-    /// </summary>
     public partial class Authtorization : Page
-    {
+    {/// <summary>
+    /// /
+    /// </summary>
         public Authtorization()
         {
             InitializeComponent();
@@ -27,12 +16,29 @@ namespace CMD2._0.Authtorization
 
         private void BtnLogin_Click(object sender, RoutedEventArgs e)
         {
+            string login = txtLogin.Text.Trim();
+            string password = txtPassword.Password.Trim();
 
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Введите логин и пароль");
+                return;
+            }
+            try
+            {
+
+                MessageBox.Show("Авторизация успешна!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка авторизации: {ex.Message}");
+            }
         }
 
         private void BtnRegister_Click(object sender, RoutedEventArgs e)
         {
-
+            Registration registrationPage = new Registration();
+            NavigationService.Navigate(registrationPage);
         }
     }
 }
