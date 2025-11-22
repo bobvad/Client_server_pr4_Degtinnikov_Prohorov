@@ -6,7 +6,9 @@ using System.Windows.Navigation;
 namespace CMD2._0.Authtorization
 {
     public partial class Authtorization : Page
-    {
+    {/// <summary>
+    /// /
+    /// </summary>
         public Authtorization()
         {
             InitializeComponent();
