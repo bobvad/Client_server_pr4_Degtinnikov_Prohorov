@@ -5,9 +5,88 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CMD2._0"
         mc:Ignorable="d"
-        
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+               WindowStartupLocation="CenterScreen"
+            Background="#1E1E1E"
+        Title="📁" Height="750" Width="1000"
+        >
+    
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" Text="ФАЙЛОВЫЙ МЕНЕДЖЕР" 
+                   FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" 
+                   FontFamily="Segoe UI" Margin="0,0,0,15"
+                   HorizontalAlignment="Left"/>
+
+        <!-- Панель навигации -->
+        <Border Grid.Row="1" Background="#2D2D2D" CornerRadius="6" 
+                BorderBrush="#404040" BorderThickness="1" 
+                Padding="12" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- Кнопки навигации -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,15,0">
+                    <Button x:Name="BtnBack" Content="←" ToolTip="Назад" 
+                            Width="35" Height="35" Margin="0,0,5,0" 
+                            Style="{StaticResource DarkButtonStyle}"
+                            FontSize="14" FontWeight="Bold"
+                            Click="BtnBack_Click"/>
+                    <Button x:Name="BtnForward" Content="→" ToolTip="Вперёд" 
+                            Width="35" Height="35" Margin="0,0,15,0" 
+                            Style="{StaticResource DarkButtonStyle}"
+                            FontSize="14" FontWeight="Bold"
+                            Click="BtnForward_Click"/>
+                </StackPanel>
+
+                <!-- Поле пути -->
+                <TextBlock Text="Путь:" Foreground="#CCCCCC" 
+                          VerticalAlignment="Center" Margin="0,0,8,0"
+                          FontFamily="Segoe UI" FontSize="12"/>
+
+                <TextBox x:Name="PathBox" Height="32" Width="600" 
+                         VerticalContentAlignment="Center"
+                         Style="{StaticResource DarkTextBoxStyle}"
+                         KeyDown="PathBox_KeyDown"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Список файлов и папок -->
+        <Border Grid.Row="2" Background="#252525" CornerRadius="6" 
+                BorderBrush="#404040" BorderThickness="1">
+            <ListView x:Name="FileList" 
+                      Style="{StaticResource DarkListViewStyle}"
+                      ItemContainerStyle="{StaticResource FileItemStyle}"
+                      SelectionMode="Single"
+                      SelectionChanged="FileList_SelectionChanged">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="8,4">
+                            <TextBlock Text="{Binding Icon}" 
+                                      FontFamily="Segoe UI Emoji" 
+                                      FontSize="16" 
+                                      Margin="0,0,12,0"
+                                      VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Name}" 
+                                      FontSize="13" 
+                                      VerticalAlignment="Center"
+                                      FontFamily="Segoe UI"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Border>
+
+        <Border Grid.Row="3" Background="#2D2D2D" CornerRadius="4" 
+                BorderBrush="#404040" BorderThickness="1" 
+                Padding="8,4" Margin="0,10,0,0">
+            <TextBlock x:Name="StatusText" Text="Готов" 
+                      Foreground="#999999" FontSize="11"
+                      FontFamily="Segoe UI"/>
+        </Border>
     </Grid>
 </Window>

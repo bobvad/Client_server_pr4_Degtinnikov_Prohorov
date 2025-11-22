@@ -24,5 +24,24 @@ namespace CMD2._0
             InitializeComponent();
         }
 
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnForward_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void FileList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void PathBox_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
     }
 }

@@ -34,5 +34,15 @@ namespace CMD2._0.Authtorization
         {
 
         }
+
+        private void TxtPassword_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void TxtLogin_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
     }
 }
