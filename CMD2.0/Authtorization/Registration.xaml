@@ -17,10 +17,10 @@
                       Margin="0,0,0,30"/>
 
             <TextBlock Text="Логин:" Margin="0,0,0,5"/>
-            <TextBox x:Name="txtLogin" Height="25" Margin="0,0,0,15" KeyDown="TxtLogin_KeyDown"/>
+            <TextBox x:Name="txtLogin" Height="25" Margin="0,0,0,15" />
 
             <TextBlock Text="Пароль:" Margin="0,0,0,5"/>
-            <PasswordBox x:Name="txtPassword" Height="25" Margin="0,0,0,15" KeyDown="TxtPassword_KeyDown"/>
+            <PasswordBox x:Name="txtPassword" Height="25" Margin="0,0,0,15"/>
 
             <Button x:Name="btnRegister" 
                    Content="Зарегистрироваться" 
