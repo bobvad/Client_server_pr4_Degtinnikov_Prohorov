@@ -218,19 +218,11 @@ namespace Server
                                     else
                                         getFile += " " + DataMessage[i];
 
-                                getFile = getFile.TrimStart('\\', '/');
-
-                                string filePath = Path.Combine(Users[ViewModelSend.Id].temp_src, getFile);
-
-                                Console.WriteLine("→ GET FILE: " + filePath);
-
-                                byte[] byteFile = File.ReadAllBytes(filePath);
-
+                                byte[] byteFile = File.ReadAllBytes(Users[ViewModelSend.Id].temp_src + getFile);
                                 viewModelMessage = new ViewModelMessage("file", JsonConvert.SerializeObject(byteFile));
                             }
                             else
                                 viewModelMessage = new ViewModelMessage("message", "Необходимо авторизоваться");
-
                             Reply = JsonConvert.SerializeObject(viewModelMessage);
                             byte[] message = Encoding.UTF8.GetBytes(Reply);
                             Handler.Send(message);
