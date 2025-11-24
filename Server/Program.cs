@@ -19,7 +19,7 @@ namespace Server
         public static int Port;
         static void Main(string[] args)
         {
-            Users.Add(new User("Alonov", "Asdfg123", @"C:\Users\student-a502.PERMAVIAT\Desktop\123\"));
+            Users.Add(new User("Alonov", "Asdfg123", @"D:\Загрузки"));
 
             Console.Write("Введите IP адрес сервер: ");
             string sIpAdress = Console.ReadLine();
@@ -155,39 +155,55 @@ namespace Server
                         }
                         else if (DataCommand[0] == "cd")
                         {
-                            if (ViewModelSend.Id != -1)
+
+                            if (ViewModelSend.Id == -1)
+                            {
+                                viewModelMessage = new ViewModelMessage("message", "Необходимо авторизоваться");
+                            }
+                            else
                             {
                                 string[] DataMessage = ViewModelSend.Message.Split(new string[1] { " " }, StringSplitOptions.None);
-                                List<string> FoldersFiles = new List<string>();
+                                string targetPath;
 
                                 if (DataMessage.Length == 1)
                                 {
-                                    Users[ViewModelSend.Id].temp_src = Users[ViewModelSend.Id].src;
-                                    FoldersFiles = GetDirectory(Users[ViewModelSend.Id].src);
+                                    targetPath = Users[ViewModelSend.Id].src;
                                 }
                                 else
                                 {
-                                    string cdFolder = "";
-
-                                    for (int i = 0; i < DataMessage.Length; i++)
-                                        if (cdFolder == "")
-                                            cdFolder += DataMessage[i];
-                                        else
-                                            cdFolder += " " + DataMessage[i];
-                                    Users[ViewModelSend.Id].temp_src = Users[ViewModelSend.Id].temp_src + cdFolder;
-                                    FoldersFiles = GetDirectory(Users[ViewModelSend.Id].temp_src);
+                                    string rawPath = ViewModelSend.Message.Substring(3).Trim(); 
+                                    if (rawPath.Length >= 2 && rawPath[1] == ':' || rawPath.StartsWith(@"\\"))
+                                    {
+                                        targetPath = rawPath;
+                                    }
+                                    else
+                                    {
+                                        targetPath = Path.Combine(Users[ViewModelSend.Id].temp_src, rawPath);
+                                    }
                                 }
-                                if (FoldersFiles.Count == 0)
-                                    viewModelMessage = new ViewModelMessage("message", "Директория пуста или не существует");
+
+                                targetPath = Path.GetFullPath(targetPath);
+                                Users[ViewModelSend.Id].temp_src = targetPath;
+
+                                var items = GetDirectory(targetPath);
+
+                                if (!Directory.Exists(targetPath))
+                                {
+                                    viewModelMessage = new ViewModelMessage("message", "Путь не существует или недоступен");
+                                }
+                                else if (items.Count == 0)
+                                {
+                                    viewModelMessage = new ViewModelMessage("message", "Папка пуста");
+                                }
                                 else
-                                    viewModelMessage = new ViewModelMessage("cd", JsonConvert.SerializeObject(FoldersFiles));
+                                {
+                                    viewModelMessage = new ViewModelMessage("cd", JsonConvert.SerializeObject(items));
+                                }
                             }
-                            else
-                                viewModelMessage = new ViewModelMessage("message", "Необходимо авторизоваться");
+
                             Reply = JsonConvert.SerializeObject(viewModelMessage);
                             byte[] message = Encoding.UTF8.GetBytes(Reply);
                             Handler.Send(message);
-
                         }
                         else if (DataCommand[0] == "get")
                         {
@@ -198,15 +214,23 @@ namespace Server
 
                                 for (int i = 1; i < DataMessage.Length; i++)
                                     if (getFile == "")
-                                        getFile += DataMessage[i];
+                                        getFile = DataMessage[i];
                                     else
                                         getFile += " " + DataMessage[i];
 
-                                byte[] byteFile = File.ReadAllBytes(Users[ViewModelSend.Id].temp_src + getFile);
+                                getFile = getFile.TrimStart('\\', '/');
+
+                                string filePath = Path.Combine(Users[ViewModelSend.Id].temp_src, getFile);
+
+                                Console.WriteLine("→ GET FILE: " + filePath);
+
+                                byte[] byteFile = File.ReadAllBytes(filePath);
+
                                 viewModelMessage = new ViewModelMessage("file", JsonConvert.SerializeObject(byteFile));
                             }
                             else
                                 viewModelMessage = new ViewModelMessage("message", "Необходимо авторизоваться");
+
                             Reply = JsonConvert.SerializeObject(viewModelMessage);
                             byte[] message = Encoding.UTF8.GetBytes(Reply);
                             Handler.Send(message);

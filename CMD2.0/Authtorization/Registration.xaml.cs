@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Common;
 
 namespace CMD2._0.Authtorization
 {
@@ -25,24 +26,47 @@ namespace CMD2._0.Authtorization
             InitializeComponent();
         }
 
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void BtnRegister_Click(object sender, RoutedEventArgs e)
         {
+            string login = txtLogin.Text.Trim();
+            string password = txtPassword.Password.Trim();
 
+            if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
+            {
+                ShowMessage("Заполните все поля!");
+                return;
+            }
+
+            if (login.Contains(" ") || password.Contains(" "))
+            {
+                ShowMessage("Логин и пароль не должны содержать пробелы!");
+                return;
+            }
+
+            var response = ServerClient.SendCommand(new ViewModelSend($"register {login} {password}", -1));
+
+            if (response.Data == "Регистрация успешна")
+            {
+                ShowMessage("Успешно зарегистрированы! Теперь войдите.", true);
+            }
+            else
+            {
+                ShowMessage(response.Data);
+            }
         }
 
-        private void TxtPassword_KeyDown(object sender, KeyEventArgs e)
+        private void BtnBack_Click(object sender, RoutedEventArgs e)
         {
-
+            NavigationService?.Navigate(new Authtorization());
         }
 
-        private void TxtLogin_KeyDown(object sender, KeyEventArgs e)
+        private void ShowMessage(string text, bool success = false)
         {
-
+            txtMessage.Text = text;
+            txtMessage.Foreground = success
+                ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Green)
+                : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Red);
+            txtMessage.Visibility = Visibility.Visible;
         }
     }
 }
