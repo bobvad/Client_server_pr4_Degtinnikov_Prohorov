@@ -29,18 +29,7 @@ Background="#1E1E1E"
             Padding="12" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <!-- Кнопки навигации -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,15,0">
-                    <Button x:Name="BtnBack" Content="←" ToolTip="Назад" 
-                        Width="35" Height="35" Margin="0,0,5,0" 
-                        Style="{StaticResource DarkButtonStyle}"
-                        FontSize="14" FontWeight="Bold"
-                        Click="BtnBack_Click"/>
-                    <Button x:Name="BtnForward" Content="→" ToolTip="Вперёд" 
-                        Width="35" Height="35" Margin="0,0,15,0" 
-                        Style="{StaticResource DarkButtonStyle}"
-                        FontSize="14" FontWeight="Bold"
-                        Click="BtnForward_Click"/>
-                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,15,0"/>
 
                 <!-- Поле пути -->
                 <TextBlock Text="Путь:" Foreground="#CCCCCC" 
@@ -51,9 +40,15 @@ Background="#1E1E1E"
                      VerticalContentAlignment="Center"
                      Style="{StaticResource DarkTextBoxStyle}"
                      KeyDown="PathBox_KeyDown"/>
+                <Button Content="Переместить" 
+        Height="33" Width="73" 
+        Margin="10,10,0,10" 
+                        Background="Gray"
+        VerticalAlignment="Top"
+        Click="BtnMoveToDesktop_Click"/>
             </StackPanel>
         </Border>
-
+        
         <!-- Список файлов и папок -->
         <Border Grid.Row="2" Background="#252525" CornerRadius="6" 
             BorderBrush="#404040" BorderThickness="1">
@@ -85,5 +80,6 @@ Background="#1E1E1E"
                   Foreground="#999999" FontSize="11"
                   FontFamily="Segoe UI"/>
         </Border>
+
     </Grid>
 </Page>

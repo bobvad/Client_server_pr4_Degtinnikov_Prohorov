@@ -40,20 +40,21 @@ namespace CMD2._0
         private Stack<string> BackHistory = new();
         private Stack<string> ForwardHistory = new();
 
-        private Socket socket;
         public FileManagerPage(string ip, int port, int userId)
         {
             InitializeComponent();
             ServerIp = ip;
             ServerPort = port;
             UserId = userId;
-
+            
             LoadDirectory("");
         }
         private async void LoadDirectory(string relativePath)
         {
             try
+
             {
+               
                 string fullPath = relativePath;
                 if (!string.IsNullOrEmpty(CurrentPath) && !string.IsNullOrEmpty(relativePath) && relativePath != "..")
                 {
@@ -92,7 +93,6 @@ namespace CMD2._0
                         CurrentPath = fullPath ?? "";
                         PathBox.Text = "~/" + CurrentPath.Replace("\\", "/");
                         StatusText.Text = $"Элементов: {items.Count}";
-                        BtnBack.IsEnabled = BackHistory.Count > 0;
                     });
                 }
                 else
@@ -114,17 +114,15 @@ namespace CMD2._0
             try
             {
                 using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                socket.Connect(ServerIp, ServerPort);
+                socket.Connect(ServerIp, ServerPort); 
 
                 var send = new ViewModelSend(message, UserId);
                 string json = JsonConvert.SerializeObject(send);
                 byte[] data = Encoding.UTF8.GetBytes(json);
                 socket.Send(data);
-
                 byte[] buffer = new byte[10 * 1024 * 1024];
                 int bytes = socket.Receive(buffer);
                 string resp = Encoding.UTF8.GetString(buffer, 0, bytes);
-
                 return JsonConvert.DeserializeObject<ViewModelMessage>(resp);
             }
             catch (Exception ex)
@@ -154,7 +152,7 @@ namespace CMD2._0
             if (string.IsNullOrEmpty(userPath)) return;
 
             StatusText.Text = "Переход...";
-
+            
             try
             {
                 string command = $"cd {userPath}";
@@ -178,10 +176,13 @@ namespace CMD2._0
                                 Name = name,
                                 IsDirectory = isDir
                             });
+
+                            CurrentPath = "";                
+                            BackHistory.Clear();      
+                            ForwardHistory.Clear();
                         }
                         PathBox.Text = userPath;
                         StatusText.Text = $"Элементов: {items.Count}";
-                        BtnBack.IsEnabled = true; 
                     });
                 }
                 else
@@ -194,15 +195,7 @@ namespace CMD2._0
                 StatusText.Text = "Ошибка: " + ex.Message;
             }
         }
-        private void BtnBack_Click(object sender, RoutedEventArgs e)
-        {
-            if (BackHistory.Count > 0)
-            {
-                string prev = BackHistory.Pop();
-                ForwardHistory.Push(CurrentPath);
-                CurrentPath = prev;
-            }
-        }
+   
 
 
         private async void DownloadFile(string fileName)
@@ -242,9 +235,45 @@ namespace CMD2._0
             }
         }
 
-        private void BtnForward_Click(object sender, RoutedEventArgs e)
+        private async void BtnUploadFromPC_Click(object sender, RoutedEventArgs e)
         {
+           
+        }
 
+        private async void BtnMoveToDesktop_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.Multiselect = true;
+
+            if (dialog.ShowDialog() == true)
+            {
+                foreach (string filePath in dialog.FileNames)
+                {
+                    string fileName = System.IO.Path.GetFileName(filePath);
+                    byte[] fileBytes = File.ReadAllBytes(filePath);
+
+                    var fileInfo = new FileInfoFTP
+                    {
+                        Name = fileName,
+                        Data = fileBytes
+                    };
+
+                    string json = JsonConvert.SerializeObject(fileInfo);
+                    StatusText.Text = $"Загрузка: {fileName}...";
+
+                    var response = await SendCommandAsync("set " + json);
+
+                    if (response?.Data != null && response.Data.Contains("успешно"))
+                    {
+                        StatusText.Text = $"Загружен: {fileName}";
+                        LoadDirectory(""); // обновить список
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Ошибка загрузки {fileName}\n{response?.Data}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
         }
     }
 }

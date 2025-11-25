@@ -10,6 +10,7 @@ namespace Common
     {
         public byte[] Data { get; set; }
         public string Name { get; set; }
+        public FileInfoFTP() { }
         public FileInfoFTP(byte[] Data, string Name)
         {
             this.Data = Data;

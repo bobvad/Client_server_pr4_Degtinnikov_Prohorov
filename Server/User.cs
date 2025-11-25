@@ -8,10 +8,11 @@ namespace Server
 {
     public class User
     {
-        public string login { get; set; }
-        public string password { get; set; }
-        public string src { get; set; }
-        public string temp_src { get; set; }
+        public int Id {  get; set; }
+        public string Login { get; set; }
+        public string Password { get; set; }
+        public string Src { get; set; }
+        public string Temp_src { get; set; }
         public virtual ICollection<CommandUser> CommandUsers { get; set; }
         public User()
         {
@@ -19,10 +20,10 @@ namespace Server
         }
         public User(string login,string password,string src) 
         {
-            this.login = login;
-            this.password = password;
-            this.src = src;
-            temp_src = src;
+            this.Login = login;
+            this.Password = password;
+            this.Src = src;
+            Temp_src = src;
             CommandUsers = new List<CommandUser>();
         }
     }

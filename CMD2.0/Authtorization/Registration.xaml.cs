@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Common;
+using Newtonsoft.Json;
 
 namespace CMD2._0.Authtorization
 {
@@ -33,40 +36,68 @@ namespace CMD2._0.Authtorization
 
             if (string.IsNullOrEmpty(login) || string.IsNullOrEmpty(password))
             {
-                ShowMessage("Заполните все поля!");
+                MessageBox.Show("Заполните все поля");
                 return;
             }
-
-            if (login.Contains(" ") || password.Contains(" "))
+            try
             {
-                ShowMessage("Логин и пароль не должны содержать пробелы!");
-                return;
+                var viewModelSend = new ViewModelSend($"register {login} {password}", -1);
+                string jsonData = JsonConvert.SerializeObject(viewModelSend);
+                string response = SendToServer(jsonData);
+                var viewModelMessage = JsonConvert.DeserializeObject<ViewModelMessage>(response);
+
+                if (viewModelMessage != null)
+                {
+                    if (viewModelMessage.Command == "message")
+                    {
+                        MessageBox.Show(viewModelMessage.Command);
+
+                        if (viewModelMessage.Command == "Регистрация успешна")
+                        {
+                            NavigationService.GoBack();
+                        }
+                    }
+                }
             }
-
-            var response = ServerClient.SendCommand(new ViewModelSend($"register {login} {password}", -1));
-
-            if (response.Data == "Регистрация успешна")
+            catch (Exception ex)
             {
-                ShowMessage("Успешно зарегистрированы! Теперь войдите.", true);
-            }
-            else
-            {
-                ShowMessage(response.Data);
+                MessageBox.Show($"Ошибка регистрации: {ex.Message}");
             }
         }
 
         private void BtnBack_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService?.Navigate(new Authtorization());
+            NavigationService.GoBack();
         }
 
-        private void ShowMessage(string text, bool success = false)
+        private string SendToServer(string jsonData)
         {
-            txtMessage.Text = text;
-            txtMessage.Foreground = success
-                ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Green)
-                : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.Red);
-            txtMessage.Visibility = Visibility.Visible;
+            try
+            {
+                IPAddress ipAddress = IPAddress.Parse("127.0.0.4");
+                IPEndPoint remoteEP = new IPEndPoint(ipAddress, 5004);
+
+                using (Socket sender = new Socket(AddressFamily.InterNetwork,
+                       SocketType.Stream, ProtocolType.Tcp))
+                {
+                    sender.Connect(remoteEP);
+
+                    byte[] msg = Encoding.UTF8.GetBytes(jsonData);
+                    sender.Send(msg);
+
+                    byte[] bytes = new byte[1024];
+                    int bytesRec = sender.Receive(bytes);
+                    string response = Encoding.UTF8.GetString(bytes, 0, bytesRec);
+
+                    sender.Shutdown(SocketShutdown.Both);
+
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка подключения к серверу: {ex.Message}");
+            }
         }
     }
 }
