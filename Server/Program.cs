@@ -246,6 +246,7 @@ namespace Server
                             }
                             else
                             {
+                                ///
                                 try
                                 {
                                     string relativePath = ViewModelSend.Message["get".Length..].Trim();
