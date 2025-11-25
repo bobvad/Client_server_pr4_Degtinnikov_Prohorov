@@ -203,32 +203,98 @@ namespace Server
                             }
                             else
                             {
-                                string rawPath = ViewModelSend.Message.Length > 3 ? ViewModelSend.Message.Substring(3).Trim() : "";
-                                string targetPath;
-
-                                if (string.IsNullOrEmpty(rawPath))
-                                    targetPath = Users[ViewModelSend.Id].Src;
-                                else if (Path.IsPathRooted(rawPath) || rawPath.StartsWith(@"\\"))
-                                    targetPath = rawPath;
-                                else
-                                    targetPath = Path.Combine(Users[ViewModelSend.Id].Temp_src, rawPath);
-
-                                targetPath = Path.GetFullPath(targetPath);
-                                if (!targetPath.EndsWith("\\")) targetPath += "\\";
-                                Users[ViewModelSend.Id].Temp_src = targetPath;
-
-                                var items = GetDirectory(targetPath);
-
-                                viewModelMessage = new ViewModelMessage("cd", JsonConvert.SerializeObject(items));
-                                using (DbContextUsers db = new DbContextUsers())
+                                try
                                 {
-                                    var commandUser = new CommandUser
+                                    // Получаем путь после команды cd (может содержать пробелы)
+                                    string rawPath = ViewModelSend.Message.Length > 2 ?
+                                        ViewModelSend.Message.Substring(2).Trim() : "";
+
+                                    using (var db = new DbContextUsers())
                                     {
-                                        Command = "cd " + rawPath,
-                                        UserId = Users[ViewModelSend.Id].Id
-                                    };
-                                    db.CommandUsers.Add(commandUser);
-                                    db.SaveChanges(); 
+                                        var user = db.Users.FirstOrDefault(u => u.Id == Users[ViewModelSend.Id].Id);
+                                        if (user == null)
+                                        {
+                                            viewModelMessage = new ViewModelMessage("message", "Пользователь не найден");
+                                        }
+                                        else
+                                        {
+                                            string targetPath;
+                                            string currentTempSrc = user.Temp_src ?? user.Src;
+
+                                            if (string.IsNullOrEmpty(rawPath))
+                                            {
+                                                // Возврат в корневую директорию
+                                                targetPath = user.Src;
+                                            }
+                                            else if (rawPath == "..")
+                                            {
+                                                // Переход на уровень выше
+                                                string currentPath = currentTempSrc.TrimEnd('\\', '/');
+                                                DirectoryInfo parentDir = Directory.GetParent(currentPath);
+
+                                                if (parentDir != null && parentDir.FullName.StartsWith(user.Src.TrimEnd('\\', '/')))
+                                                {
+                                                    targetPath = parentDir.FullName + "\\";
+                                                }
+                                                else
+                                                {
+                                                    targetPath = user.Src; // Остаемся в корне
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // Переход в указанную папку
+                                                targetPath = Path.Combine(currentTempSrc, rawPath);
+
+                                                // Нормализуем путь
+                                                targetPath = Path.GetFullPath(targetPath);
+                                                if (!targetPath.EndsWith("\\"))
+                                                    targetPath += "\\";
+
+                                                // Проверяем, что путь в пределах разрешенной директории
+                                                string userRoot = Path.GetFullPath(user.Src);
+                                                if (!targetPath.StartsWith(userRoot))
+                                                {
+                                                    targetPath = user.Src;
+                                                }
+                                            }
+
+                                            // Проверяем существование директории
+                                            if (!Directory.Exists(targetPath))
+                                            {
+                                                viewModelMessage = new ViewModelMessage("message", $"Директория не существует: {targetPath}");
+                                            }
+                                            else
+                                            {
+                                                // Обновляем временный путь в БД
+                                                user.Temp_src = targetPath;
+                                                db.SaveChanges();
+
+                                                // Обновляем пользователя в памяти
+                                                Users[ViewModelSend.Id] = user;
+
+                                                // Получаем содержимое директории
+                                                var items = GetDirectory(targetPath);
+                                                viewModelMessage = new ViewModelMessage("cd", JsonConvert.SerializeObject(items));
+
+                                                // Логируем команду
+                                                var commandUser = new CommandUser
+                                                {
+                                                    Command = $"cd {rawPath}",
+                                                    UserId = user.Id
+                                                };
+                                                db.CommandUsers.Add(commandUser);
+                                                db.SaveChanges();
+
+                                                Console.WriteLine($"[CD] User {user.Login} navigated to: {targetPath}");
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"[CD ERROR] {ex.Message}");
+                                    viewModelMessage = new ViewModelMessage("message", $"Ошибка навигации: {ex.Message}");
                                 }
                             }
 

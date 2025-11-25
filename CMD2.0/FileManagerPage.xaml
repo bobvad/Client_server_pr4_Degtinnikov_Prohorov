@@ -36,10 +36,7 @@ Background="#1E1E1E"
                       VerticalAlignment="Center" Margin="0,0,8,0"
                       FontFamily="Segoe UI" FontSize="12"/>
 
-                <TextBox x:Name="PathBox" Height="32" Width="600" 
-                     VerticalContentAlignment="Center"
-                     Style="{StaticResource DarkTextBoxStyle}"
-                     KeyDown="PathBox_KeyDown"/>
+                
                 <Button Content="Переместить" 
         Height="33" Width="73" 
         Margin="10,10,0,10" 

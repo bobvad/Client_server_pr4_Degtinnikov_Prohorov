@@ -54,17 +54,10 @@ namespace CMD2._0
         private async void LoadDirectory(string relativePath)
         {
             try
-
             {
-               
-                string fullPath = relativePath;
-                if (!string.IsNullOrEmpty(CurrentPath) && !string.IsNullOrEmpty(relativePath) && relativePath != "..")
-                {
-                    fullPath = System.IO.Path.Combine(CurrentPath, relativePath);
-                }
+                StatusText.Text = "Загрузка...";
 
-                string command = string.IsNullOrEmpty(fullPath.Trim()) ? "cd" : $"cd {fullPath}";
-
+                string command = string.IsNullOrEmpty(relativePath.Trim()) ? "cd" : $"cd {relativePath}";
                 var response = await SendCommandAsync(command);
 
                 if (response?.Command == "cd")
@@ -74,6 +67,17 @@ namespace CMD2._0
                     Dispatcher.Invoke(() =>
                     {
                         FileList.Items.Clear();
+
+                        // Добавляем ".." для навигации вверх (кроме корневой директории)
+                        if (!string.IsNullOrEmpty(relativePath) && relativePath != "" && relativePath != "cd")
+                        {
+                            FileList.Items.Add(new FileItem
+                            {
+                                Name = "..",
+                                IsDirectory = true
+                            });
+                        }
+
                         foreach (var item in items)
                         {
                             bool isDir = item.EndsWith("/");
@@ -86,20 +90,17 @@ namespace CMD2._0
                             });
                         }
 
-                        if (!string.IsNullOrEmpty(relativePath) && relativePath != ".." && relativePath != ".")
-                        {
-                            BackHistory.Push(CurrentPath);
-                            ForwardHistory.Clear();
-                        }
-
-                        CurrentPath = fullPath ?? "";
-                        PathBox.Text = "~/" + CurrentPath.Replace("\\", "/");
-                        StatusText.Text = $"Элементов: {items.Count}";
+                        StatusText.Text = $"Элементов: {FileList.Items.Count}";
                     });
                 }
                 else
                 {
-                    Dispatcher.Invoke(() => StatusText.Text = "Ошибка: " + (response?.Data ?? "Нет ответа"));
+                    Dispatcher.Invoke(() =>
+                    {
+                        StatusText.Text = "Ошибка: " + (response?.Data ?? "Нет ответа");
+                        MessageBox.Show(response?.Data ?? "Ошибка навигации", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                    });
                 }
             }
             catch (Exception ex)
@@ -107,8 +108,24 @@ namespace CMD2._0
                 Dispatcher.Invoke(() =>
                 {
                     StatusText.Text = "Ошибка: " + ex.Message;
-                    MessageBox.Show($"Произошла ошибка:\n{ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Произошла ошибка:\n{ex.Message}", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                 });
+            }
+        }
+
+        private void FileList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (FileList.SelectedItem is FileItem item)
+            {
+                if (item.IsDirectory)
+                {
+                    LoadDirectory(item.Name);
+                }
+                else
+                {
+                    DownloadFile(item.Name);
+                }
             }
         }
         private async Task<ViewModelMessage> SendCommandAsync(string message)
@@ -132,73 +149,8 @@ namespace CMD2._0
                 return new ViewModelMessage("message", "Не удалось подключиться: " + ex.Message);
             }
         }
-        private void FileList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (FileList.SelectedItem is FileItem item)
-            {
-                if (item.IsDirectory)
-                {
-                    LoadDirectory(item.Name);
-                }
-                else
-                {
-                    DownloadFile(item.Name);
-                }
-            }
-        }
-        private async void PathBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.Enter) return;
-
-            string userPath = PathBox.Text.Trim();
-            if (string.IsNullOrEmpty(userPath)) return;
-
-            StatusText.Text = "Переход...";
-            
-            try
-            {
-                string command = $"cd {userPath}";
-
-                var response = await SendCommandAsync(command);
-
-                if (response?.Command == "cd")
-                {
-                    var items = JsonConvert.DeserializeObject<List<string>>(response.Data);
-
-                    Dispatcher.Invoke(() =>
-                    {
-                        FileList.Items.Clear();
-                        foreach (var item in items)
-                        {
-                            bool isDir = item.EndsWith("/");
-                            string name = isDir ? item.Substring(0, item.Length - 1) : item;
-
-                            FileList.Items.Add(new FileItem
-                            {
-                                Name = name,
-                                IsDirectory = isDir
-                            });
-
-                            CurrentPath = "";                
-                            BackHistory.Clear();      
-                            ForwardHistory.Clear();
-                        }
-                        PathBox.Text = userPath;
-                        StatusText.Text = $"Элементов: {items.Count}";
-                    });
-                   
-                }
-                else
-                {
-                    StatusText.Text = "Ошибка: " + (response?.Data ?? "Путь не найден");
-                }
-            }
-            catch (Exception ex)
-            {
-                StatusText.Text = "Ошибка: " + ex.Message;
-            }
-        }
-   
+     
+    
 
 
         private async void DownloadFile(string fileName)
