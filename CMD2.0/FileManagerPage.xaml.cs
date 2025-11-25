@@ -30,8 +30,10 @@ namespace CMD2._0
         public bool IsDirectory { get; set; }
         public string Icon => IsDirectory ? "📁" : "📄";
     }
+
     public partial class FileManagerPage : Page
     {
+        private DbContextUsers dbContextUsers = new DbContextUsers();
         private readonly string ServerIp;
         private readonly int ServerPort;
         private readonly int UserId;
@@ -184,6 +186,7 @@ namespace CMD2._0
                         PathBox.Text = userPath;
                         StatusText.Text = $"Элементов: {items.Count}";
                     });
+                   
                 }
                 else
                 {

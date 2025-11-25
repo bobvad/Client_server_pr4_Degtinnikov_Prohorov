@@ -220,6 +220,16 @@ namespace Server
                                 var items = GetDirectory(targetPath);
 
                                 viewModelMessage = new ViewModelMessage("cd", JsonConvert.SerializeObject(items));
+                                using (DbContextUsers db = new DbContextUsers())
+                                {
+                                    var commandUser = new CommandUser
+                                    {
+                                        Command = "cd " + rawPath,
+                                        UserId = Users[ViewModelSend.Id].Id
+                                    };
+                                    db.CommandUsers.Add(commandUser);
+                                    db.SaveChanges(); 
+                                }
                             }
 
                             Reply = JsonConvert.SerializeObject(viewModelMessage);
@@ -244,6 +254,16 @@ namespace Server
 
                                     byte[] byteFile = File.ReadAllBytes(fullPath);
                                     viewModelMessage = new ViewModelMessage("file", JsonConvert.SerializeObject(byteFile));
+                                    using (DbContextUsers db = new DbContextUsers())
+                                    {
+                                        var commandUser = new CommandUser
+                                        {
+                                            Command = "get " + relativePath,
+                                            UserId = Users[ViewModelSend.Id].Id
+                                        };
+                                        db.CommandUsers.Add(commandUser);
+                                        db.SaveChanges();
+                                    }
                                 }
                                 catch
                                 {
@@ -256,6 +276,7 @@ namespace Server
                             Handler.Send(message);
                             Handler.Shutdown(SocketShutdown.Both);
                             Handler.Close();
+                          
                         }
                         else if (DataCommand[0] == "set")  
                         {
@@ -280,6 +301,16 @@ namespace Server
 
                                     viewModelMessage = new ViewModelMessage("message", "Файл успешно загружен");
                                     Console.WriteLine($"[SET] Загружен файл: {fileInfo.Name} ({fileInfo.Data.Length} байт) → {fullPath}");
+                                    using (DbContextUsers db = new DbContextUsers())
+                                    {
+                                        var commandUser = new CommandUser
+                                        {
+                                            Command = "set " + fullPath,
+                                            UserId = Users[ViewModelSend.Id].Id
+                                        };
+                                        db.CommandUsers.Add(commandUser);
+                                        db.SaveChanges();
+                                    }
                                 }
                                 catch (Exception ex)
                                 {

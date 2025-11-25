@@ -6,13 +6,7 @@ namespace Server
         public DbSet<User> Users { get; set; }
         public DbSet<CommandUser> CommandUsers { get; set; }
 
-        static DbContextUsers()
-        {
-            
-            using var ctx = new DbContextUsers();
-            ctx.Database.EnsureCreated();   // ← ВСЁ! Больше ничего не надо!
-        }
-
+    
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseMySql(
